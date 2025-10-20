@@ -1,0 +1,259 @@
+erDiagram
+  %% Entities
+  PATIENT {
+    int patient_id
+    string primer_nombre
+    string segundo_nombre
+    string primer_apellido
+    string segundo_apellido
+    date fecha_nacimiento
+    string sexo
+    string email
+    datetime fecha_registro
+    boolean activo
+  }
+
+  PATIENT_DOCUMENT {
+    int patient_document_id
+    int patient_id
+    string tipo_documento_id
+    string numero_documento
+    string pais_emisor
+    date fecha_emision
+  }
+
+  PATIENT_ADDRESS {
+    int patient_address_id
+    int patient_id
+    string tipo_direccion
+    string departamento
+    string municipio
+    string direccion_texto
+    string codigo_postal
+    float coordenada_lat
+    float coordenada_lon
+  }
+
+  PATIENT_PHONE {
+    int patient_phone_id
+    int patient_id
+    string tipo_telefono
+    string numero
+    boolean principal
+  }
+
+  EMERGENCY_CONTACT {
+    int contact_id
+    int patient_id
+    string nombre
+    string parentesco
+    string telefono
+    string email
+    string instrucciones
+  }
+
+  PROFESSIONAL {
+    int professional_id
+    string codigo_interno
+    string numero_colegiatura
+    string nombres
+    string apellidos
+    string email_profesional
+    date fecha_ingreso_hospital
+    boolean activo
+  }
+
+  SPECIALTY {
+    int specialty_id
+    string nombre
+    string descripcion
+  }
+
+  PROFESSIONAL_SPECIALTY {
+    int professional_id
+    int specialty_id
+    date desde_fecha
+    date hasta_fecha
+  }
+
+  PROFESSIONAL_ADDRESS {
+    int professional_address_id
+    int professional_id
+    string tipo
+    string departamento
+    string municipio
+    string direccion_texto
+    string horario_atencion
+  }
+
+  PROFESSIONAL_PHONE {
+    int professional_phone_id
+    int professional_id
+    string tipo_telefono
+    string numero
+  }
+
+  PROFESSIONAL_SCHEDULE {
+    int schedule_id
+    int professional_id
+    int dia_semana
+    time hora_inicio
+    time hora_fin
+    string modalidad
+  }
+
+  ROOM {
+    int room_id
+    string nombre
+    string ubicacion
+    string tipo
+  }
+
+  APPOINTMENT {
+    int appointment_id
+    int patient_id
+    int professional_id
+    date fecha
+    time hora_inicio
+    time hora_fin
+    string tipo_atencion
+    string estado
+    int room_id
+    string motivo
+    string creada_por
+    datetime fecha_creacion
+  }
+
+  CLINICAL_RECORD {
+    int historia_id
+    int patient_id
+    datetime fecha_hora_registro
+    string tipo_registro
+    text resumen_texto
+    string resumen_estructurado_json
+    int professional_id
+    int diagnostico_principal_id
+    int version
+  }
+
+  CLINICAL_RECORD_DIAGNOSIS {
+    int id
+    int historia_id
+    int diagnosis_id
+  }
+
+  CLINICAL_RECORD_PROCEDURE {
+    int id
+    int historia_id
+    int procedure_id
+  }
+
+  VITAL_SIGN {
+    int vital_id
+    int historia_id
+    string tipo_signo
+    string valor
+    string unidad
+    datetime fecha_hora
+  }
+
+  PRESCRIPTION {
+    int prescription_id
+    int historia_id
+    int medication_id
+    string dosis
+    string frecuencia
+    int duracion_dias
+    int prescrito_por
+    datetime fecha_prescripcion
+  }
+
+  DIAGNOSIS {
+    int diagnosis_id
+    string codigo_cie
+    text descripcion
+  }
+
+  MEDICATION {
+    int medication_id
+    string codigo_atc
+    string nombre_comercial
+    string principio_activo
+    string presentacion
+  }
+
+  PROCEDURE {
+    int procedure_id
+    string codigo
+    text descripcion
+    numeric precio_referencia
+  }
+
+  INSURER {
+    int insurer_id
+    string nombre
+    string contacto
+  }
+
+  POLICY {
+    int policy_id
+    int patient_id
+    int insurer_id
+    string numero_poliza
+    text cobertura_resumen
+    date fecha_inicio
+    date fecha_fin
+    string estado
+  }
+
+  AUDIT_LOG {
+    int audit_id
+    int usuario_id
+    string rol
+    string entidad
+    int entidad_id
+    string accion
+    string detalle_json
+    datetime timestamp
+    string ip
+    string aplicacion
+  }
+
+  %% Relationships (cardinalidades según especificación)
+  PATIENT ||--o{ PATIENT_DOCUMENT : has
+  PATIENT ||--o{ PATIENT_ADDRESS : has
+  PATIENT ||--o{ PATIENT_PHONE : has
+  PATIENT ||--o{ EMERGENCY_CONTACT : has
+  PATIENT ||--o{ CLINICAL_RECORD : has
+  PATIENT ||--o{ POLICY : has
+
+  PROFESSIONAL ||--o{ PROFESSIONAL_SPECIALTY : has
+  SPECIALTY ||--o{ PROFESSIONAL_SPECIALTY : assigned_to
+  PROFESSIONAL ||--o{ PROFESSIONAL_ADDRESS : practices_at
+  PROFESSIONAL ||--o{ PROFESSIONAL_PHONE : has
+  PROFESSIONAL ||--o{ PROFESSIONAL_SCHEDULE : has
+
+  APPOINTMENT }o--|| PATIENT : for
+  APPOINTMENT }o--|| PROFESSIONAL : with
+  APPOINTMENT }o--|| ROOM : in
+
+  CLINICAL_RECORD }o--|| PROFESSIONAL : authored_by
+  CLINICAL_RECORD ||--o{ CLINICAL_RECORD_DIAGNOSIS : includes
+  CLINICAL_RECORD ||--o{ CLINICAL_RECORD_PROCEDURE : includes
+  CLINICAL_RECORD ||--o{ VITAL_SIGN : records
+  CLINICAL_RECORD ||--o{ PRESCRIPTION : includes
+
+  PRESCRIPTION }o--|| MEDICATION : prescribes
+  CLINICAL_RECORD_DIAGNOSIS }o--|| DIAGNOSIS : refers_to
+  CLINICAL_RECORD_PROCEDURE }o--|| PROCEDURE : refers_to
+
+  INSURER ||--o{ POLICY : issues
+  POLICY }o--|| PATIENT : for
+
+  %% Audit relations (múltiples relaciones explícitas para claridad)
+  AUDIT_LOG }o--|| APPOINTMENT : audits
+  AUDIT_LOG }o--|| CLINICAL_RECORD : audits
+  AUDIT_LOG }o--|| PRESCRIPTION : audits
+  AUDIT_LOG }o--|| POLICY : audits
+  AUDIT_LOG }o--|| DIAGNOSIS : audits
+  AUDIT_LOG }o--|| PATIENT : audits

@@ -1,0 +1,77 @@
+@startuml
+!pragma layout smetana
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+}
+
+class Paciente {
+  +PacienteID
+  +NombreCompleto
+  +FechaNacimiento
+  +Email
+}
+
+class Profesional {
+  +ProfesionalID
+  +NombreCompleto
+  +Especialidad
+}
+
+class Cita {
+  +CitaID
+  +Fecha
+  +HoraInicio
+  +HoraFin
+  +Estado
+}
+
+class HistoriaClinica {
+  +HistoriaID
+  +FechaHoraRegistro
+  +TipoRegistro
+  +Resumen
+}
+
+class Diagnostico {
+  +DiagnosticoID
+  +CodigoCIE
+  +Descripcion
+}
+
+class Medicamento {
+  +MedicamentoID
+  +NombreComercial
+  +PrincipioActivo
+}
+
+class Poliza {
+  +PolizaID
+  +NumeroPoliza
+  +Cobertura
+  +Estado
+}
+
+class Aseguradora {
+  +AseguradoraID
+  +Nombre
+  +Contacto
+}
+
+class Auditoria {
+  +AuditID
+  +Usuario
+  +Accion
+  +Fecha
+  +IP
+}
+
+Paciente "1" --> "N" Cita : solicita
+Profesional "1" --> "N" Cita : atiende
+Cita "1" --> "1" HistoriaClinica : registra
+HistoriaClinica "1" --> "N" Diagnostico : incluye
+HistoriaClinica "1" --> "N" Medicamento : prescribe
+Paciente "1" --> "N" Poliza : pertenece a
+Poliza "N" --> "1" Aseguradora : emitida por
+HistoriaClinica "N" --> "1" Auditoria : auditado por
+@enduml
